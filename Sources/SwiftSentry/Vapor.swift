@@ -22,3 +22,35 @@ extension Request {
         return result
     }
 }
+
+extension Sentry {
+    public func capture(
+        message: String,
+        level: Level?,
+        request: Request,
+        environment: Vapor.Environment,
+        logger: String,
+        exceptions: Exceptions,
+        tags: [String: String]?,
+        user: User?
+    ) -> EventLoopFuture<UUID> {
+        let event = Event(
+            event_id: UUID(),
+            timestamp: Date().timeIntervalSince1970,
+            level: level,
+            logger: logger,
+            transaction: request.route?.path.reduce(into: "") { $0 += "/\($1.description)" },
+            server_name: servername,
+            release: release,
+            tags: tags,
+            environment: environment.name,
+            message: Message.raw(message: message),
+            exception: exceptions,
+            request: request.sentryContext,
+            breadcrumbs: nil,
+            user: user
+        )
+
+        return self.send(event: event)
+    }
+}
