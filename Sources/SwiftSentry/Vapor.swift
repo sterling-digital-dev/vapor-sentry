@@ -30,7 +30,7 @@ extension Sentry {
         request: Request,
         environment: Vapor.Environment,
         logger: String,
-        exceptions: Exceptions,
+        exceptions: Exceptions?,
         tags: [String: String]?,
         user: User?
     ) -> EventLoopFuture<UUID> {
@@ -52,5 +52,28 @@ extension Sentry {
         )
 
         return self.send(event: event)
+    }
+
+    @discardableResult
+    public func capture(
+        message: String,
+        level: Level?,
+        request: Request,
+        environment: Vapor.Environment,
+        logger: String,
+        exceptions: Exceptions?,
+        tags: [String: String]?,
+        user: User?,
+    ) async throws -> UUID {
+        try await capture(
+            message: message,
+            level: level,
+            request: request,
+            environment: environment,
+            logger: logger,
+            exceptions: exceptions,
+            tags: tags,
+            user: user
+        ).get()
     }
 }
