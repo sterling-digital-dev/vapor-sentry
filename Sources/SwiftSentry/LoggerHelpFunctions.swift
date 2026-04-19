@@ -26,6 +26,7 @@ public func makeEventData(
     logger: String? = nil,
     transaction: String? = nil,
     tags: [String: String]? = nil,
+    request: RequestContext? = nil,
     filePath: String? = #filePath,
     file: String? = #file,
     function: String? = #function,
@@ -54,6 +55,7 @@ public func makeEventData(
             environment: environment,
             message: .raw(message: message),
             exception: Exceptions(values: [ExceptionDataBag(type: message, value: nil, stacktrace: stacktrace)]),
+            request: request,
             breadcrumbs: nil,
             user: nil
         )

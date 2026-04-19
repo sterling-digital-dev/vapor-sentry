@@ -1,11 +1,11 @@
 import Foundation
 
-struct FatalError {
+public struct FatalError {
     /// The error message that is produced from a fatal error
-    let message: String
-    
-    let stacktrace: Stacktrace
-    
+    public let message: String
+
+    public let stacktrace: Stacktrace
+
     /// Parse an error log that contains multiple fatal errors with stacktraces from SwiftBacktrace
     internal static func parseStacktrace(_ string: String) -> [FatalError] {
         let lines = string.split(separator: "\n")
@@ -63,7 +63,7 @@ struct FatalError {
     }
     
     /// Generate a `Event` object to upload to sentry
-    func getEvent(servername: String?, release: String?, environment: String?) -> Event {
+    public func getEvent(servername: String?, release: String?, environment: String?) -> Event {
         Event(
             event_id: UUID(),
             timestamp: Date().timeIntervalSince1970,
@@ -76,6 +76,7 @@ struct FatalError {
             environment: environment,
             message: .raw(message: message),
             exception: Exceptions(values: [ExceptionDataBag(type: "FatalError", value: message, stacktrace: stacktrace)]),
+            request: nil,
             breadcrumbs: nil,
             user: nil
         )

@@ -31,7 +31,7 @@ public struct Sentry {
 
     public init(
         dsn: String,
-        httpClient: HTTPClient = HTTPClient(eventLoopGroupProvider: .createNew),
+        httpClient: HTTPClient = HTTPClient(eventLoopGroupProvider: .singleton),
         servername: String? = getHostname(),
         release: String? = nil,
         environment: String? = nil
@@ -60,35 +60,6 @@ public struct Sentry {
         return string ?? ""
     }
 
-    @discardableResult
-    public func capture(error: Error, eventLoop: EventLoop? = nil) -> EventLoopFuture<UUID> {
-        let edb = ExceptionDataBag(
-            type: error.localizedDescription,
-            value: nil,
-            stacktrace: nil
-        )
-
-        let exceptions = Exceptions(values: [edb])
-
-        let event = Event(
-            event_id: UUID(),
-            timestamp: Date().timeIntervalSince1970,
-            level: .error,
-            logger: nil,
-            transaction: nil,
-            server_name: servername,
-            release: release,
-            tags: nil,
-            environment: environment,
-            message: .raw(message: "\(error.localizedDescription)"),
-            exception: exceptions,
-            breadcrumbs: nil,
-            user: nil
-        )
-
-        return send(event: event, eventLoop: eventLoop)
-    }
-
     /// Log a message to sentry
     @discardableResult
     public func capture(
@@ -97,6 +68,7 @@ public struct Sentry {
         logger: String? = nil,
         transaction: String? = nil,
         tags: [String: String]? = nil,
+        request: RequestContext? = nil,
         file: String? = #file,
         filePath: String? = #filePath,
         function: String? = #function,
@@ -119,6 +91,7 @@ public struct Sentry {
             environment: environment,
             message: .raw(message: message),
             exception: Exceptions(values: [ExceptionDataBag(type: message, value: nil, stacktrace: stacktrace)]),
+            request: request,
             breadcrumbs: nil,
             user: nil
         )
